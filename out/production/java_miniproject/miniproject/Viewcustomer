@@ -1,0 +1,146 @@
+package miniproject;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Vector;
+
+public class ViewCustomer extends JFrame implements ActionListener {
+    JTextField tfname, tfaddress, tfpin, tfphone;
+    JComboBox<String> meterDropdown, tfplan;
+    JButton addd, cancel;
+
+    ViewCustomer() {
+        super("View Customer");
+        setSize(800, 600);
+        setLocation(400, 100);
+
+        JPanel p = new JPanel();
+        p.setLayout(null);
+        p.setBackground(new Color(146, 143, 143));
+        add(p);
+
+        JLabel heading = new JLabel("View Customer");
+        heading.setBounds(290, 30, 200, 25);
+        heading.setFont(new Font("Tahoma", Font.PLAIN, 24));
+        p.add(heading);
+
+        JLabel lblmeter = new JLabel("Select Meter No");
+        lblmeter.setBounds(200, 95, 200, 25);
+        p.add(lblmeter);
+
+        meterDropdown = new JComboBox<>(getMeterNumbers());
+        meterDropdown.setBounds(350, 95, 200, 25);
+        meterDropdown.addActionListener(this);
+        p.add(meterDropdown);
+
+        JLabel lblname = new JLabel("Customer Name");
+        lblname.setBounds(200, 145, 200, 25);
+        p.add(lblname);
+
+        tfname = new JTextField();
+        tfname.setBounds(350, 145, 200, 25);
+        p.add(tfname);
+
+        JLabel lbladdress = new JLabel("Customer Address");
+        lbladdress.setBounds(200, 195, 200, 25);
+        p.add(lbladdress);
+
+        tfaddress = new JTextField();
+        tfaddress.setBounds(350, 195, 200, 25);
+        p.add(tfaddress);
+
+        JLabel lblcode = new JLabel("Customer Pincode");
+        lblcode.setBounds(200, 245, 200, 25);
+        p.add(lblcode);
+
+        tfpin = new JTextField();
+        tfpin.setBounds(350, 245, 200, 25);
+        p.add(tfpin);
+
+        JLabel lblphone = new JLabel("Customer Phone no");
+        lblphone.setBounds(200, 295, 200, 25);
+        p.add(lblphone);
+
+        tfphone = new JTextField();
+        tfphone.setBounds(350, 295, 200, 25);
+        p.add(tfphone);
+
+        JLabel lblplan = new JLabel("Gruha Jyothi");
+        lblplan.setBounds(200, 345, 200, 25);
+        p.add(lblplan);
+
+        String[] options = {"Yes", "No"};
+        tfplan = new JComboBox<>(options);
+        tfplan.setBounds(350, 345, 200, 25);
+        p.add(tfplan);
+
+        addd = new JButton("Update");
+        addd.setBounds(300, 400, 100, 25);
+        addd.addActionListener(this);
+        p.add(addd);
+        setLayout(new BorderLayout());
+        add(p, "Center");
+
+        cancel = new JButton("Cancel");
+        cancel.setBounds(440, 400, 100, 25);
+        cancel.addActionListener(this);
+        p.add(cancel);
+        setLayout(new BorderLayout());
+        add(p, "Center");
+
+        setVisible(true);
+    }
+
+    private Vector<String> getMeterNumbers() {
+        Vector<String> meterNumbers = new Vector<>();
+        try {
+            conn c = new conn();
+            String query = "SELECT meter_no FROM customer";
+            ResultSet rs = c.s.executeQuery(query);
+            while (rs.next()) {
+                meterNumbers.add(rs.getString("meter_no"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return meterNumbers;
+    }
+
+    public void actionPerformed(ActionEvent ae) {
+        if (ae.getSource() == meterDropdown) {
+            try {
+                conn c = new conn();
+                String selectedMeter = (String) meterDropdown.getSelectedItem();
+                String query = "SELECT * FROM customer WHERE meter_no = ?";
+                PreparedStatement pst = c.conn.prepareStatement(query);
+                pst.setString(1, selectedMeter);
+                ResultSet rs = pst.executeQuery();
+
+                if (rs.next()) {
+                    tfname.setText(rs.getString("customer_name"));
+                    tfaddress.setText(rs.getString("customer_address"));
+                    tfpin.setText(rs.getString("customer_pincode"));
+                    tfphone.setText(rs.getString("customer_phone"));
+                    tfplan.setSelectedItem(rs.getString("gruha_jyothi"));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else if (ae.getSource() == addd) {
+            // Implement the update logic here
+            // For example, you can update the customer details in the database
+            // based on the selected meter number and the modified text fields.
+            // Remember to handle exceptions appropriately.
+        } else {
+            setVisible(false);
+        }
+    }
+
+    public static void main(String[] args) {
+        new NewCustomer();
+    }
+}
